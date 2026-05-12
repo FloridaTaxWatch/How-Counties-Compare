@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Florida Counties Tax Comparison | Florida TaxWatch</title>
+  <meta name="description" content="Interactive map comparing property tax levies, millage rates, and expenditures across Florida's 67 counties.">
+  
+  <!-- D3.js from CDN -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  
+  <!-- html2pdf.js for PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <h1>How Florida Counties Compare</h1>
+      <p class="subtitle">Interactive Tax & Revenue Data by County (2025 Edition)</p>
+    </header>
+
+    <!-- About This Report (Collapsible) -->
+    <section class="about-section" id="about-section">
+      <button class="about-toggle" id="about-toggle" aria-expanded="false" aria-controls="about-content">
+        <span class="about-toggle-icon">▶</span>
+        <span>About This Report</span>
+      </button>
+      <div class="about-content" id="about-content" hidden>
+        <div class="about-intro">
+          <p>Local taxing and spending is a major part of Florida government operations. More than half of all Florida government revenue is raised at the local level, the largest share in the nation. Florida's 67 county governments (including Jacksonville's consolidated government), more than 400 municipal governments, and more than 1,400 independent special districts spend more than $120 billion annually.</p>
+          <p>This report compares the revenue and expenditure profiles of Florida's 67 counties to give taxpayers an overview of how their local government stacks up with the rest of the state. The report presents the most recently available data regarding property taxes, other taxes and fees, county and municipal revenues, county and municipal expenditures, and other related measures. Per capita figures are determined by using population figures for the year for which the data is used.</p>
+          <p>While the focus is on county and municipal governments, this report includes information on all types of local jurisdictions, including special districts and school districts, and most data are grouped geographically by county.</p>
+        </div>
+        
+        <details class="about-details">
+          <summary>Data Sources</summary>
+          <p>Property tax data comes from the Florida Department of Revenue. Most of the Other Tax and Fees data is compiled by the Florida Legislature's Office of Economic and Demographic Research. Based on the system developed by the Florida Department of Financial Services, known as the Local Government Electronic Reporting (LOGER) System, this report classifies local government revenues into six categories: property taxes; other taxes; charges for services; permits, fees and special assessments; intergovernmental revenues; and other revenues.</p>
+          <p>Expenditures are classified as general government, public safety, courts, physical environment, transportation, economic environment, human services, and culture and recreation.</p>
+        </details>
+
+        <details class="about-details">
+          <summary>Data Limitations</summary>
+          <p>This report uses the most recently available data, but the limitations of that data must be considered. Data are self-reported by local governments and errors and omissions can occur. While the classification system helps, there may be some differences in how governments account for similar functions. Also, this report often groups county and municipal data into geographic county totals in order to derive an average for all residents in the county. Depending on where in the county a person lives, deviations can occur.</p>
+          <p>This report excludes custodial funds and interfund transfers from revenue and expenditure amounts. Custodial funds are funds held by a local government for another entity, such as taxes collected by a county on behalf of cities and special districts. Interfund transfers are funds moved from one of a government's funds to another, where it will be eventually spent. Including custodial funds and interfund transfers can result in double counting of revenues or expenditures.</p>
+          <p>This report compares the magnitude and makeup of Florida's local governments' fiscal operations. It does not attempt to compare or evaluate levels of service.</p>
+        </details>
+
+        <details class="about-details">
+          <summary>Glossary of Terms</summary>
+          <dl class="glossary">
+            <dt>Fiscal Year/Property Tax Year</dt>
+            <dd>Local governments' fiscal year runs from October 1 to September 30. Property tax revenue for a fiscal year are based on the assessment made the previous January 1. For example, FY 2022-23 property taxes are based on the January 1, 2022 assessment.</dd>
+            
+            <dt>Levy</dt>
+            <dd>The imposition of a tax, fee, charge for service, or fine by a government.</dd>
+            
+            <dt>Millage</dt>
+            <dd>The tax rate levied on real estate or other property, expressed as dollars per $1,000 of property taxable value. For example, a tax rate of 15.5 mills on a property with a taxable value of $200,000 would result in a tax bill of $3,100.</dd>
+            
+            <dt>Just Value</dt>
+            <dd>The just or market value of a property is the value that the property would likely sell for in the current market.</dd>
+            
+            <dt>Assessed Value</dt>
+            <dd>The assessed value of a property is the value of that property after any assessment caps, such as Save Our Homes, or the 10 percent non-homestead cap on non-residential properties.</dd>
+            
+            <dt>Taxable Value</dt>
+            <dd>The taxable value of a property is the assessed value minus any subsequent exemptions, such as the homestead exemption. This is the value upon which the millage is imposed and the property taxes are then collected.</dd>
+            
+            <dt>Tangible Personal Property (TPP)</dt>
+            <dd>Personal property which can be touched and physically relocated, such as furniture, machinery, equipment, computers, and signage. Household goods and most vehicles are exempt. This tax is only paid by businesses. Inventory held for sale is exempt and there is a $25,000 exemption for all TPP taxpayers.</dd>
+            
+            <dt>Local Option Sales Tax</dt>
+            <dd>Local governments may assess up to nine types of local discretionary sales surtaxes: Charter County and Regional Transportation System; County Public Hospital; Emergency Fire Rescue Services and Facilities; Indigent Care and Trauma Center; Local Government Infrastructure; Pension Liability; School Capital Outlay; Small County; and Voter-approved Indigent Care.</dd>
+          </dl>
+        </details>
+        
+        <p class="about-footer"><em>Florida TaxWatch hopes the information in this report can help taxpayers make assessments for themselves, for it is only through knowledge and participation that you can decide if you get the government you pay for.</em></p>
+      </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="app-main">
+      <!-- Map Section -->
+      <section class="map-section" aria-label="Florida County Map">
+        <div class="map-controls">
+          <div class="control-group">
+            <label for="county-select">Focus On:</label>
+            <select id="county-select" aria-describedby="county-select-help">
+              <option value="">Statewide (All Counties)</option>
+            </select>
+            <span id="county-select-help" class="visually-hidden">
+              Select a county to view its statistics, or click on the map
+            </span>
+          </div>
+          <div class="control-group">
+            <label for="metric-select">View Metric:</label>
+            <select id="metric-select">
+              <optgroup label="Population &amp; Miscellaneous">
+                <option value="population">Total County Population (2025)</option>
+                <option value="percentUnincorporated">Percentage of Population Living in Unincorporated Areas</option>
+                <option value="populationDensity">Population Density by County</option>
+                <option value="perCapitaPersonalIncome">Per Capita County Personal Income</option>
+                <option value="unemploymentRate">Unemployment Rate by County</option>
+              </optgroup>
+              <optgroup label="Property Taxes">
+                <option value="perCapitaTotalPropertyTaxLevies">Per Capita Total Property Tax Levies</option>
+                <option value="perCapitaCountyPropertyTaxLevies">Per Capita County Government Property Tax Levies</option>
+                <option value="perCapitaMunicipalPropertyTaxLevies">Per Capita Municipal Government Property Tax Levies</option>
+                <option value="perCapitaSchoolPropertyTaxLevies">Per Capita School District Property Tax Levies</option>
+                <option value="perCapitaSpecialDistrictPropertyTaxLevies">Per Capita Independent Special District Property Tax Levies</option>
+                <option value="avgTotalMillageRate">Average Total Property Tax Millage Rates</option>
+                <option value="perCapitaSaveOurHomesImpact">Per Capita Impact of Save Our Homes in Taxes</option>
+                <option value="perCapita2008AmendmentImpact">Per Capita Impact of 2008 Property Tax Constitutional Amendment in Taxes</option>
+                <option value="propertyTaxGrowth2014_2024">Property Tax Growth vs. Population and Inflation (2014-2024)</option>
+                <option value="perCapitaExcessTaxGrowth">Per Capita Property Taxes that Exceed Combined Population and Inflation Growth (2014-2024)</option>
+                <option value="percentTaxableJustValue">Percent of Total Just Value that is Taxable</option>
+                <option value="perCapitaJustValue">Per Capita Just Value</option>
+                <option value="perCapitaTaxableValue">Per Capita Taxable Value</option>
+              </optgroup>
+              <optgroup label="Tax Burden (Income Adjusted)">
+                <option value="totalPropertyTaxLeviesPer1000Income">Total Tax / $1k Income</option>
+              </optgroup>
+              <optgroup label="Sales Tax">
+                <option value="localOptionSalesTaxRate">Local Option Sales Tax Rate</option>
+                <option value="perCapitaLocalOptionSalesTaxRevenue">Per Capita Sales Tax Revenue</option>
+                <option value="percentSalesTaxRevenueLevied">% Sales Tax Revenue Levied</option>
+              </optgroup>
+              <optgroup label="Fuel Tax">
+                <option value="localOptionMotorFuelTaxRate">Local Option Motor Fuel Tax Rate</option>
+                <option value="perCapitaLocalOptionMotorFuelTaxRevenue">Per Capita Fuel Tax Revenue</option>
+                <option value="percentFuelTaxRevenueLevied">% Fuel Tax Revenue Levied</option>
+              </optgroup>
+              <optgroup label="Tourist Tax">
+                <option value="localOptionTouristDevelopmentTaxRate">Local Option Tourist Development Tax Rate</option>
+                <option value="perCapitaLocalOptionTouristDevelopmentTaxRevenue">Per Capita Tourist Tax Revenue</option>
+              </optgroup>
+              <optgroup label="Communications Tax">
+                <option value="perCapitaLocalCommunicationsServicesTaxRevenue">Per Capita Comm. Tax Revenue</option>
+              </optgroup>
+              <optgroup label="Public Services Tax">
+                <option value="perCapitaLocalPublicServicesTaxRevenue">Per Capita Public Svc Tax Revenue</option>
+              </optgroup>
+              <optgroup label="Regulatory Fees">
+                <option value="perCapitaBuildingPermitFees">Per Capita Building Permit Fees</option>
+                <option value="perCapitaImpactFees">Per Capita Impact Fees</option>
+                <option value="perCapitaSpecialAssessments">Per Capita Special Assessments</option>
+              </optgroup>
+              <optgroup label="Total Revenue">
+                <option value="perCapitaTotalRevenue">Per Capita Total Revenue</option>
+                <option value="perCapitaMunicipalRevenue">Per Capita Municipal Revenue</option>
+                <option value="perCapitaMunicipalRevenueIncorporated">Per Capita Municipal Revenue (Incorp. Pop.)</option>
+                <option value="perCapitaCountyRevenue">Per Capita County Revenue</option>
+                <option value="perCapitaCountyMunicipalTaxRevenue">Per Capita County and Municipal Tax Revenue</option>
+                <option value="perCapitaCountyMunicipalPermitsFeesAssessments">Per Capita County and Municipal Permits, Fees, and Special Assessments</option>
+                <option value="perCapitaCountyMunicipalIntergovernmentalRevenue">Per Capita County and Municipal Intergovernmental Revenue</option>
+                <option value="perCapitaCountyMunicipalStateRevenue">Per Capita Municipal and County Revenue from State Gov</option>
+                <option value="perCapitaCountyMunicipalChargesForServices">Per Capita County and Municipal Charges for Services</option>
+              </optgroup>
+              <optgroup label="County &amp; Municipal Expenditure">
+                <option value="perCapitaTotalExpenditure">Per Capita Total County and Municipal Government Expenditures</option>
+                <option value="perCapitaMunicipalExpenditure">Per Capita Total Municipal Expenditures</option>
+                <option value="perCapitaCountyExpenditure">Per Capita Total County Expenditures</option>
+                <option value="countyExpenditureGrowth2013_2024">County Expenditure Growth vs. Population and Inflation</option>
+              </optgroup>
+              <optgroup label="Total Expenditures">
+                <option value="perCapitaGeneralGovernmentExpenditure">Per Capita General Govt Expenditures</option>
+                <option value="perCapitaPublicSafetyExpenditure">Per Capita Public Safety Expenditures</option>
+                <option value="perCapitaPhysicalEnvironmentExpenditure">Per Capita Physical Environment Expenditures</option>
+                <option value="perCapitaTransportationExpenditure">Per Capita Transportation Expenditures</option>
+                <option value="perCapitaEconomicEnvironmentExpenditure">Per Capita Economic Environment Expenditures</option>
+                <option value="perCapitaHumanServicesExpenditure">Per Capita Human Services Expenditures</option>
+                <option value="perCapitaCultureRecreationExpenditure">Per Capita Cultural/Rec Expenditures</option>
+                <option value="perCapitaCourtRelatedExpenditure">Per Capita Court-Related Expenditures</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+        
+        <div class="map-container">
+          <div id="map-loading" class="loading-indicator">
+            <div class="spinner"></div>
+            <span>Loading map...</span>
+          </div>
+          <svg id="florida-map" role="img" aria-label="Interactive map of Florida counties">
+            <title>Florida County Map</title>
+            <desc>Click or hover over a county to view its tax statistics. Use the dropdown to select a county via keyboard.</desc>
+          </svg>
+          <div id="map-legend" class="map-legend" aria-label="Map color legend"></div>
+        </div>
+
+        <!-- Collapsible Statewide Property Tax Chart -->
+        <details id="statewide-chart-dropdown" class="chart-dropdown">
+          <summary class="chart-dropdown-toggle">
+            <span>📈 Statewide Growth in Property Tax Levies (FY 2000-01 – FY 2024-25)</span>
+            <span class="dropdown-arrow">▼</span>
+          </summary>
+          <div class="chart-dropdown-content">
+            <div id="statewide-property-tax-chart" class="wide-chart"></div>
+            <div class="chart-legend" id="statewide-chart-legend"></div>
+            <p class="chart-source">Source: Florida TaxWatch, Florida Department of Revenue, November 2025</p>
+          </div>
+        </details>
+
+        <!-- Tooltip (hidden by default) -->
+        <div id="tooltip" class="tooltip" role="tooltip" aria-hidden="true"></div>
+      </section>
+
+      <!-- Info Panel Section -->
+      <aside class="info-panel" aria-label="Metric Information Panel">
+        
+        <!-- Metric Context Header -->
+        <div class="metric-header">
+          <h2 id="current-metric-name">Per Capita Total Property Tax</h2>
+          <p id="current-metric-description" class="metric-description"></p>
+          <p id="county-note" class="county-note" style="display: none; font-style: italic; color: #666; margin-top: 8px;"></p>
+          <div class="metric-meta">
+            <span id="metric-year" class="metric-badge">2024</span>
+            <span id="metric-indicator" class="metric-badge indicator-neutral"></span>
+          </div>
+        </div>
+
+        <!-- Statewide Stats for Current Metric -->
+        <div class="statewide-stats">
+          <h3>Statewide Overview</h3>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-label">Average</span>
+              <span id="statewide-avg" class="stat-value">—</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Minimum</span>
+              <span id="statewide-min" class="stat-value">—</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Maximum</span>
+              <span id="statewide-max" class="stat-value">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selected County/Statewide Display -->
+        <div id="county-display" class="county-display">
+          <div class="county-display-header">
+            <h3 id="selected-county-name">Statewide</h3>
+            <button id="clear-selection" class="btn-icon" title="Return to statewide view" style="display: none;">✕</button>
+          </div>
+          <div class="county-metric-value">
+            <span id="county-value" class="big-value">—</span>
+            <span id="county-metric-label" class="value-label"></span>
+          </div>
+          <div class="county-context">
+            <div class="context-item">
+              <span class="context-label">Rank</span>
+              <span id="county-rank" class="context-value">#— of 67</span>
+            </div>
+            <div class="context-item">
+              <span class="context-label">vs Average</span>
+              <span id="county-vs-avg" class="context-value vs-neutral">—</span>
+            </div>
+          </div>
+          <div class="percentile-bar">
+            <div class="percentile-track">
+              <div id="percentile-marker" class="percentile-marker" style="left: 50%;"></div>
+            </div>
+            <div class="percentile-labels">
+              <span>Low</span>
+              <span id="percentile-value">50th percentile</span>
+              <span>High</span>
+            </div>
+          </div>
+          
+          <!-- Paired Metrics Display (for growth vs benchmark metrics) -->
+          <div id="paired-metrics-display" class="paired-metrics" style="display: none;">
+            <h4 id="paired-metrics-title">Growth Comparison</h4>
+            <div class="paired-metrics-grid">
+              <div class="paired-metric-item primary">
+                <span id="paired-primary-label" class="paired-label">—</span>
+                <span id="paired-primary-value" class="paired-value">—</span>
+              </div>
+              <div class="paired-metric-item benchmark">
+                <span id="paired-benchmark-label" class="paired-label">—</span>
+                <span id="paired-benchmark-value" class="paired-value">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Prompt to select county (shown when viewing statewide) -->
+        <div id="select-county-prompt" class="select-prompt">
+          <p>👆 Click a county on the map to focus on it</p>
+          <p class="hint">Hold <kbd>Ctrl</kbd> and click multiple counties to compare</p>
+        </div>
+
+        <!-- Comparison Section -->
+        <div id="comparison-section" class="comparison-section" style="display: none;">
+          <div class="comparison-header">
+            <h3>Comparing Counties</h3>
+            <button id="clear-comparison" class="btn btn-small">Clear All</button>
+          </div>
+          <table class="comparison-table">
+            <thead id="comparison-thead">
+              <tr>
+                <th>County</th>
+                <th>Value</th>
+                <th>Rank</th>
+                <th>vs Avg</th>
+              </tr>
+            </thead>
+            <tbody id="comparison-tbody">
+              <!-- Populated by JavaScript -->
+            </tbody>
+          </table>
+          
+          <!-- Comparison Chart -->
+          <div class="chart-wrapper">
+            <div id="comparison-chart" class="chart" aria-label="Bar chart comparing selected counties"></div>
+          </div>
+        </div>
+
+        <!-- Related Metrics -->
+        <div class="related-metrics">
+          <h3>Related Metrics</h3>
+          <div id="related-metrics-list" class="related-list">
+            <!-- Populated by JavaScript -->
+          </div>
+        </div>
+
+        <!-- City Property Tax Growth (only shows for Property Tax metrics when county has top 50 cities) -->
+        <div id="city-tax-growth-section" class="city-tax-growth-section" style="display: none;">
+          <h3>🏙️ City Property Tax Growth (2014-2024)</h3>
+          <p class="city-section-subtitle">Top 50 largest Florida cities in <span id="city-county-name">this county</span></p>
+          <table class="city-growth-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>City</th>
+                <th>Growth</th>
+              </tr>
+            </thead>
+            <tbody id="city-growth-tbody">
+              <!-- Populated by JavaScript -->
+            </tbody>
+          </table>
+          <p class="city-statewide-note">Statewide city average: <strong>135.3%</strong></p>
+        </div>
+
+        <!-- County Recap Download Section -->
+        <div id="county-recap-section" class="county-recap-section" style="display: none;">
+          <button id="download-recap-btn" class="btn btn-recap">
+            📊 Download <span id="recap-county-name">County</span> Recap
+          </button>
+          <p class="recap-hint">Get a one-sheet PDF with all metrics, rankings &amp; statewide comparisons</p>
+        </div>
+
+        <!-- Hidden Recap Template (for PDF generation) -->
+        <div id="recap-template" class="recap-template">
+          <div class="recap-page">
+            <div class="recap-header">
+              <img src="./assets/ftw-logo.png" alt="Florida TaxWatch" class="recap-logo">
+              <div class="recap-title-block">
+                <h1 id="recap-title">County Name</h1>
+                <p class="recap-subtitle">Florida County Tax &amp; Finance Profile</p>
+                <p class="recap-date">Data as of November 2025</p>
+              </div>
+            </div>
+            
+            <div class="recap-section">
+              <h2>📍 Demographics</h2>
+              <table class="recap-table" id="recap-demographics-table">
+                <thead>
+                  <tr>
+                    <th>Metric</th>
+                    <th>County Value</th>
+                    <th>State Avg</th>
+                    <th>Rank</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            
+            <div class="recap-section">
+              <h2>🏠 Property Taxes</h2>
+              <table class="recap-table" id="recap-propertyTax-table">
+                <thead>
+                  <tr>
+                    <th>Metric</th>
+                    <th>County Value</th>
+                    <th>State Avg</th>
+                    <th>Rank</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            
+            <div class="recap-section">
+              <h2>💰 Other Local Taxes</h2>
+              <table class="recap-table" id="recap-otherTaxes-table">
+                <thead>
+                  <tr>
+                    <th>Metric</th>
+                    <th>County Value</th>
+                    <th>State Avg</th>
+                    <th>Rank</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            
+            <div class="recap-section">
+              <h2>📈 Revenue</h2>
+              <table class="recap-table" id="recap-revenue-table">
+                <thead>
+                  <tr>
+                    <th>Metric</th>
+                    <th>County Value</th>
+                    <th>State Avg</th>
+                    <th>Rank</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            
+            <div class="recap-section">
+              <h2>💸 Expenditures</h2>
+              <table class="recap-table" id="recap-expenditure-table">
+                <thead>
+                  <tr>
+                    <th>Metric</th>
+                    <th>County Value</th>
+                    <th>State Avg</th>
+                    <th>Rank</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            
+            <div class="recap-section">
+              <h2>📊 Growth &amp; Regulatory</h2>
+              <table class="recap-table" id="recap-growth-table">
+                <thead>
+                  <tr>
+                    <th>Metric</th>
+                    <th>County Value</th>
+                    <th>State Avg</th>
+                    <th>Rank</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            
+            <div class="recap-footer">
+              <p><strong>Source:</strong> Florida Department of Revenue and Florida TaxWatch, November 2025</p>
+              <p>Generated from the Florida TaxWatch Interactive County Comparison Tool • <em>floridataxwatch.org</em></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Data Source -->
+        <footer class="panel-footer">
+          <p class="data-source">
+            <strong>Source:</strong> Florida Department of Revenue and Florida TaxWatch, November 2025.
+          </p>
+        </footer>
+      </aside>
+    </main>
+  </div>
+
+  <!-- Main Application Script -->
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>

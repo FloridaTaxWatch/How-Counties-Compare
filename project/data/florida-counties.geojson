@@ -1,0 +1,12 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "12001",
+      "properties": {"NAME": "Alachua", "GEOID": "12001"},
+      "geometry": {"type": "Polygon", "coordinates": [[[-82.556511, 29.511982], [-82.656301, 29.564811], [-82.400247, 29.924531], [-82.142578, 30.143117], [-82.046111, 29.718271], [-82.185043, 29.558316], [-82.422848, 29.485194], [-82.556511, 29.511982]]]}
+    }
+  ],
+  "note": "This is a placeholder file. The application will load full GeoJSON from CDN."
+}

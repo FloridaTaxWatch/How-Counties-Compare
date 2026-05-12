@@ -1,0 +1,1978 @@
+/* ==========================================================================
+   Florida Counties Tax Map - Styles
+   ========================================================================== */
+
+/* CSS Custom Properties (Variables) */
+:root {
+  /* Colors - Florida TaxWatch Red Theme */
+  --color-primary: #d02030;          /* TaxWatch Red */
+  --color-primary-light: #e63946;    /* Lighter red for hover */
+  --color-primary-dark: #a01825;     /* Darker red */
+  --color-secondary: #1a365d;        /* Dark blue accent */
+  --color-secondary-light: #2c5282;  /* Lighter dark blue */
+  --color-accent: #c9a227;           /* Gold accent */
+  
+  --color-bg: #f7f8f9;
+  --color-bg-panel: #ffffff;
+  --color-border: #d1d5db;
+  --color-text: #111827;
+  --color-text-muted: #4b5563;
+  --color-text-light: #ffffff;
+  
+  /* Map Colors - Sequential scale for choropleth (grey to red) */
+  --map-color-1: #f7f7f7;
+  --map-color-2: #fee5e5;
+  --map-color-3: #fcc8c8;
+  --map-color-4: #f99a9a;
+  --map-color-5: #f56b6b;
+  --map-color-6: #e84545;
+  --map-color-7: #d02030;
+  --map-color-8: #a01825;
+  --map-color-9: #6b1018;
+  
+  --map-stroke: #ffffff;
+  --map-stroke-hover: #1a365d;
+  --map-stroke-selected: #d02030;
+  
+  /* Chart Colors */
+  --chart-county: #d02030;
+  --chart-statewide: #6b7280;
+  --chart-county-tax: #d02030;
+  --chart-municipal-tax: #1a365d;
+  --chart-school-tax: #374151;
+  --chart-special-tax: #4b5563;
+  
+  /* Comparison Colors (up to 5 counties) */
+  --compare-1: #d02030;
+  --compare-2: #1a365d;
+  --compare-3: #374151;
+  --compare-4: #111827;
+  --compare-5: #c9a227;
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  
+  /* Typography */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.5rem;
+  --font-size-xxl: 2rem;
+  
+  /* Borders */
+  --border-radius: 8px;
+  --border-radius-sm: 4px;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+  
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+}
+
+/* ==========================================================================
+   Reset & Base Styles
+   ========================================================================== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0 0 var(--spacing-sm);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+p {
+  margin: 0 0 var(--spacing-md);
+}
+
+/* Accessibility */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ==========================================================================
+   App Container & Layout
+   ========================================================================== */
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: var(--color-text-light);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  text-align: center;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: var(--font-size-xxl);
+  font-weight: 700;
+}
+
+.app-header .subtitle {
+  margin: var(--spacing-xs) 0 0;
+  font-size: var(--font-size-lg);
+  opacity: 0.9;
+}
+
+.app-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  max-width: 1800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ==========================================================================
+   Map Section
+   ========================================================================== */
+
+.map-section {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-panel);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.map-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.control-group label {
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.control-group select {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  background: var(--color-bg-panel);
+  color: var(--color-text);
+  cursor: pointer;
+  min-width: 200px;
+}
+
+.control-group select:focus {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 2px;
+}
+
+.map-container {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-md);
+  min-height: 500px;
+}
+
+#florida-map {
+  width: 100%;
+  height: 100%;
+  max-height: 70vh;
+}
+
+/* County Paths */
+#florida-map .county {
+  fill: var(--map-color-5);
+  stroke: var(--map-stroke);
+  stroke-width: 1;
+  cursor: pointer;
+  transition: fill var(--transition-fast), stroke-width var(--transition-fast);
+}
+
+#florida-map .county:hover {
+  stroke: var(--map-stroke-hover);
+  stroke-width: 2.5;
+  filter: brightness(1.1);
+}
+
+#florida-map .county:focus {
+  outline: none;
+  stroke: var(--map-stroke-hover);
+  stroke-width: 3;
+}
+
+#florida-map .county.selected {
+  stroke: var(--map-stroke-selected);
+  stroke-width: 3;
+}
+
+#florida-map .county.compared {
+  stroke: var(--color-secondary);
+  stroke-width: 2.5;
+}
+
+/* Loading Indicator */
+.loading-indicator {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--color-text-muted);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-indicator.hidden {
+  display: none;
+}
+
+/* Map Legend */
+.map-legend {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-bg);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.map-legend .legend-bar {
+  display: flex;
+  height: 12px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.map-legend .legend-bar span {
+  width: 24px;
+  height: 100%;
+}
+
+.map-legend .legend-label {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+/* ==========================================================================
+   Chart Dropdown (Below Map)
+   ========================================================================== */
+
+.chart-dropdown {
+  width: 100%;
+  margin-top: var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  background: var(--color-bg-panel);
+  overflow: hidden;
+}
+
+.chart-dropdown-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: var(--color-text-light);
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  cursor: pointer;
+  list-style: none;
+  transition: background var(--transition-fast);
+}
+
+.chart-dropdown-toggle:hover {
+  background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
+}
+
+.chart-dropdown-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.chart-dropdown-toggle .dropdown-arrow {
+  transition: transform var(--transition-fast);
+  font-size: 0.8em;
+}
+
+.chart-dropdown[open] .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+.chart-dropdown-content {
+  padding: var(--spacing-lg);
+  background: var(--color-bg);
+}
+
+.chart-dropdown .wide-chart {
+  width: 100%;
+  height: 350px;
+  margin-bottom: var(--spacing-md);
+}
+
+.chart-dropdown .chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm) var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: var(--color-bg-panel);
+  border-radius: var(--border-radius-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.chart-dropdown .chart-legend-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm) var(--spacing-lg);
+  width: 100%;
+}
+
+.chart-dropdown .chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+}
+
+.chart-dropdown .chart-legend-color {
+  width: 16px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.chart-dropdown .chart-source {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-align: right;
+  margin: 0;
+}
+
+/* ==========================================================================
+   Tooltip
+   ========================================================================== */
+
+.tooltip {
+  position: fixed;
+  z-index: 1000;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(33, 37, 41, 0.95);
+  color: var(--color-text-light);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+  max-width: 280px;
+  box-shadow: var(--shadow-lg);
+}
+
+.tooltip.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.tooltip .tooltip-title {
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  margin-bottom: var(--spacing-xs);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: var(--spacing-xs);
+}
+
+.tooltip .tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding: 2px 0;
+}
+
+.tooltip .tooltip-label {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.tooltip .tooltip-value {
+  font-weight: 500;
+}
+
+.tooltip .tooltip-rank {
+  font-size: 0.75rem;
+  color: var(--color-secondary-light);
+}
+
+/* ==========================================================================
+   Info Panel
+   ========================================================================== */
+
+.info-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  background: var(--color-bg-panel);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-lg);
+  overflow-y: auto;
+  max-height: calc(100vh - 140px);
+}
+
+.panel-header {
+  text-align: center;
+  padding-bottom: var(--spacing-md);
+  border-bottom: 2px solid var(--color-primary);
+}
+
+.panel-header h2 {
+  color: var(--color-primary);
+  font-size: var(--font-size-xl);
+  margin: 0;
+}
+
+.panel-header .county-rank {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin: var(--spacing-xs) 0 0;
+}
+
+/* Comparison Controls */
+.comparison-controls {
+  background: var(--color-bg);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-md);
+}
+
+.comparison-controls h3 {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--spacing-sm);
+}
+
+.comparison-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  min-height: 32px;
+}
+
+.comparison-hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-style: italic;
+  margin: 0;
+}
+
+.comparison-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--color-primary);
+  color: var(--color-text-light);
+  border-radius: 20px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.comparison-tag[data-index="0"] { background: var(--compare-1); }
+.comparison-tag[data-index="1"] { background: var(--compare-2); }
+.comparison-tag[data-index="2"] { background: var(--compare-3); }
+.comparison-tag[data-index="3"] { background: var(--compare-4); }
+.comparison-tag[data-index="4"] { background: var(--compare-5); }
+
+.comparison-tag .remove-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.comparison-tag .remove-btn:hover {
+  opacity: 1;
+}
+
+/* Buttons */
+.btn {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.btn-secondary {
+  background: var(--color-border);
+  color: var(--color-text);
+}
+
+.btn-secondary:hover {
+  background: #ced4da;
+}
+
+/* Metric Tabs */
+.metric-tabs {
+  display: flex;
+  gap: var(--spacing-xs);
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 0;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.tab-btn:hover {
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+.tab-btn.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* Metrics Table */
+.metrics-container {
+  overflow-x: auto;
+}
+
+.metrics-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.metrics-table th,
+.metrics-table td {
+  padding: var(--spacing-sm);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.metrics-table th {
+  background: var(--color-bg);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  position: sticky;
+  top: 0;
+}
+
+.metrics-table td {
+  vertical-align: middle;
+}
+
+.metrics-table .metric-name {
+  font-weight: 500;
+  max-width: 150px;
+}
+
+.metrics-table .metric-value {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.metrics-table .metric-statewide {
+  color: var(--color-text-muted);
+}
+
+.metrics-table .metric-rank {
+  font-weight: 600;
+}
+
+.metrics-table .metric-rank.top-10 {
+  color: var(--color-accent);
+}
+
+.metrics-table .metric-rank.bottom-10 {
+  color: #e74c3c;
+}
+
+.metrics-table .placeholder-text {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-style: italic;
+  padding: var(--spacing-lg);
+}
+
+.metrics-table .no-data-message {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-style: italic;
+  padding: var(--spacing-md);
+  font-size: var(--font-size-sm);
+}
+
+/* ==========================================================================
+   Charts
+   ========================================================================== */
+
+.charts-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.chart-wrapper {
+  background: var(--color-bg);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-md);
+}
+
+.chart-wrapper h3 {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--spacing-sm);
+  text-align: center;
+}
+
+.chart {
+  width: 100%;
+  min-height: 200px;
+}
+
+.chart svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Chart Elements */
+.chart .bar {
+  transition: opacity var(--transition-fast);
+}
+
+.chart .bar:hover {
+  opacity: 0.8;
+}
+
+.chart .axis text {
+  font-size: 11px;
+  fill: var(--color-text-muted);
+}
+
+.chart .axis path,
+.chart .axis line {
+  stroke: var(--color-border);
+}
+
+.chart .bar-label {
+  font-size: 10px;
+  fill: var(--color-text);
+  font-weight: 500;
+}
+
+.chart .grid line {
+  stroke: var(--color-border);
+  stroke-opacity: 0.5;
+  stroke-dasharray: 2, 2;
+}
+
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+}
+
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.chart-legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+/* ==========================================================================
+   Panel Footer
+   ========================================================================== */
+
+.panel-footer {
+  margin-top: auto;
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+}
+
+.panel-footer .data-source,
+.panel-footer .data-note {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin: 0 0 var(--spacing-xs);
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+
+/* Tablet */
+@media (max-width: 1200px) {
+  .app-main {
+    grid-template-columns: 1fr 350px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 900px) {
+  .app-main {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+  
+  .app-header h1 {
+    font-size: var(--font-size-xl);
+  }
+  
+  .app-header .subtitle {
+    font-size: var(--font-size-base);
+  }
+  
+  .map-section {
+    order: 1;
+  }
+  
+  .info-panel {
+    order: 2;
+    max-height: none;
+  }
+  
+  .map-container {
+    min-height: 400px;
+  }
+  
+  .map-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .control-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .control-group select {
+    min-width: 100%;
+  }
+  
+  .metric-tabs {
+    overflow-x: auto;
+  }
+  
+  .tab-btn {
+    white-space: nowrap;
+    flex: none;
+    padding: var(--spacing-sm);
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .app-header {
+    padding: var(--spacing-md);
+  }
+  
+  .app-main {
+    padding: var(--spacing-sm);
+  }
+  
+  .info-panel {
+    padding: var(--spacing-md);
+  }
+  
+  .metrics-table {
+    font-size: 0.75rem;
+  }
+  
+  .metrics-table th,
+  .metrics-table td {
+    padding: var(--spacing-xs);
+  }
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+  .app-container {
+    display: block;
+  }
+  
+  .map-controls,
+  .comparison-controls,
+  .metric-tabs {
+    display: none;
+  }
+  
+  .info-panel {
+    max-height: none;
+    box-shadow: none;
+  }
+  
+  .map-section {
+    box-shadow: none;
+  }
+}
+
+.municipal-section {
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* ==========================================================================
+   About This Report Section
+   ========================================================================== */
+
+.about-section {
+  background: var(--color-bg-panel);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.about-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-primary);
+  text-align: left;
+  transition: background-color var(--transition-fast);
+}
+
+.about-toggle:hover {
+  background-color: rgba(208, 32, 48, 0.05);
+}
+
+.about-toggle:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+.about-toggle-icon {
+  display: inline-block;
+  transition: transform var(--transition-fast);
+  font-size: 0.75rem;
+}
+
+.about-toggle[aria-expanded="true"] .about-toggle-icon {
+  transform: rotate(90deg);
+}
+
+.about-content {
+  padding: 0 var(--spacing-xl) var(--spacing-lg);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.about-content[hidden] {
+  display: none;
+}
+
+.about-intro {
+  margin-bottom: var(--spacing-lg);
+}
+
+.about-intro p {
+  color: var(--color-text);
+  line-height: 1.7;
+}
+
+.about-details {
+  margin-bottom: var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+}
+
+.about-details summary {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-bg);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.about-details summary:hover {
+  background-color: rgba(208, 32, 48, 0.05);
+}
+
+.about-details[open] summary {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.about-details p {
+  padding: var(--spacing-md);
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.7;
+}
+
+.about-details p + p {
+  padding-top: 0;
+}
+
+.glossary {
+  padding: var(--spacing-md);
+  margin: 0;
+}
+
+.glossary dt {
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-top: var(--spacing-md);
+}
+
+.glossary dt:first-child {
+  margin-top: 0;
+}
+
+.glossary dd {
+  margin: var(--spacing-xs) 0 0 0;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.about-footer {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* ==========================================================================
+   Statewide Charts Section
+   ========================================================================== */
+
+.statewide-chart-section {
+  background: var(--color-bg-panel);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+  margin-bottom: var(--spacing-lg);
+  border: 1px solid var(--color-border);
+}
+
+.statewide-chart-section summary {
+  padding: var(--spacing-md) var(--spacing-lg);
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--color-primary);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.statewide-chart-section summary::before {
+  content: '▶';
+  font-size: 0.7em;
+  transition: transform 0.2s ease;
+}
+
+.statewide-chart-section[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.statewide-chart-section summary::-webkit-details-marker {
+  display: none;
+}
+
+.statewide-chart-section summary:hover {
+  background: var(--color-bg-alt);
+}
+
+.statewide-chart-content {
+  padding: var(--spacing-lg);
+  padding-top: 0;
+}
+
+.statewide-chart-section h3 {
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.statewide-chart-section .chart-subtitle {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+#statewide-property-tax-chart {
+  width: 100%;
+  height: 400px;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  justify-content: center;
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+}
+
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.chart-legend-color {
+  width: 16px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.chart-source {
+  margin-top: var(--spacing-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* ==========================================================================
+   Metric-Focused Sidebar - New Design
+   ========================================================================== */
+
+/* Metric Header */
+.metric-header {
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: white;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.metric-header h2 {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.metric-description {
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: var(--font-size-sm);
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+.metric-meta {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.metric-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.metric-badge.indicator-positive {
+  background: rgba(5, 150, 105, 0.3);
+}
+
+.metric-badge.indicator-negative {
+  background: rgba(220, 38, 38, 0.3);
+}
+
+.metric-badge.indicator-neutral {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.metric-badge.indicator-source {
+  background: rgba(255, 255, 255, 0.15);
+  font-style: italic;
+}
+
+/* Statewide Stats */
+.statewide-stats {
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.statewide-stats h3 {
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-sm);
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.stat-value {
+  display: block;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* County Display */
+.county-display {
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.county-display-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.county-display-header h3 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  color: var(--color-primary);
+}
+
+.btn-icon {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: var(--color-bg);
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--color-text-muted);
+  transition: all var(--transition-fast);
+}
+
+.btn-icon:hover {
+  background: var(--color-primary);
+  color: white;
+}
+
+.county-metric-value {
+  text-align: center;
+  padding: var(--spacing-md) 0;
+}
+
+.big-value {
+  display: block;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.value-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-top: var(--spacing-xs);
+}
+
+.county-context {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+  margin: var(--spacing-md) 0;
+  padding: var(--spacing-md);
+  background: var(--color-bg);
+  border-radius: var(--border-radius-sm);
+}
+
+.context-item {
+  text-align: center;
+}
+
+.context-label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.context-value {
+  display: block;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+}
+
+.context-value.vs-above {
+  color: var(--color-primary);
+}
+
+.context-value.vs-below {
+  color: #059669;
+}
+
+.context-value.vs-neutral {
+  color: var(--color-text-muted);
+}
+
+/* Percentile Bar */
+.percentile-bar {
+  margin-top: var(--spacing-md);
+}
+
+.percentile-track {
+  position: relative;
+  height: 8px;
+  background: linear-gradient(to right, #d1fae5, #fef3c7, #fee2e2);
+  border-radius: 4px;
+  margin-bottom: var(--spacing-xs);
+}
+
+.percentile-marker {
+  position: absolute;
+  top: -4px;
+  width: 16px;
+  height: 16px;
+  background: var(--color-text);
+  border: 2px solid white;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  box-shadow: var(--shadow-sm);
+  transition: left var(--transition-normal);
+}
+
+.percentile-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+
+/* Paired Metrics Display (for growth vs benchmark) */
+.paired-metrics {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+}
+
+.paired-metrics h4 {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin: 0 0 var(--spacing-sm) 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.paired-metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--spacing-sm);
+}
+
+.paired-metric-item {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-sm);
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.paired-metric-item .paired-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+}
+
+.paired-metric-item .paired-value {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+
+.paired-metric-item.primary .paired-value {
+  color: var(--color-primary);
+}
+
+.paired-metric-item.benchmark .paired-value {
+  color: var(--color-text-muted);
+}
+
+.paired-metric-item.excess .paired-value {
+  color: var(--color-primary);
+}
+
+.paired-metric-item.excess.positive .paired-value {
+  color: #e74c3c; /* Red for excess (bad) */
+}
+
+.paired-metric-item.excess.negative .paired-value {
+  color: #27ae60; /* Green for under (good) */
+}
+
+/* Select County Prompt */
+.select-prompt {
+  padding: var(--spacing-xl) var(--spacing-lg);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.select-prompt p {
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.select-prompt .hint {
+  font-size: var(--font-size-sm);
+}
+
+.select-prompt kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  font-family: inherit;
+  font-size: 0.8em;
+}
+
+/* Comparison Section */
+.comparison-section {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.comparison-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.comparison-header h3 {
+  margin: 0;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+}
+
+.btn-small {
+  padding: 4px 12px;
+  font-size: var(--font-size-sm);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-small:hover {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+/* Comparison Table */
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.comparison-table th,
+.comparison-table td {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.comparison-table th {
+  font-weight: 600;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.comparison-table td:first-child {
+  position: relative;
+}
+
+.comparison-table .county-name {
+  font-weight: 500;
+}
+
+.remove-county-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.comparison-table tr:hover .remove-county-btn {
+  opacity: 1;
+}
+
+.remove-county-btn:hover {
+  color: var(--color-primary);
+}
+
+.statewide-row {
+  background: var(--color-bg);
+}
+
+.statewide-row td {
+  border-bottom: none;
+}
+
+/* Excess value color coding in comparison table */
+.excess-positive {
+  color: #e74c3c !important;
+  font-weight: 600;
+}
+
+.excess-negative {
+  color: #27ae60 !important;
+  font-weight: 600;
+}
+
+/* Related Metrics */
+.related-metrics {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.related-metrics h3 {
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.related-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.related-metric-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-bg);
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition-fast);
+}
+
+.related-metric-btn:hover {
+  border-color: var(--color-primary);
+  background: white;
+}
+
+.related-name {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+
+.related-value {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.no-related {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-style: italic;
+}
+
+/* City Property Tax Growth Section */
+.city-tax-growth-section {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+  background: linear-gradient(135deg, #fef9f9 0%, #fff 100%);
+}
+
+.city-tax-growth-section h3 {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.city-section-subtitle {
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.city-growth-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.city-growth-table th {
+  text-align: left;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-bottom: 2px solid var(--color-primary);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+}
+
+.city-growth-table th:first-child {
+  width: 50px;
+  text-align: center;
+}
+
+.city-growth-table th:last-child {
+  text-align: right;
+}
+
+.city-growth-table td {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.city-growth-table td:first-child {
+  text-align: center;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.city-growth-table td:last-child {
+  text-align: right;
+  font-weight: 500;
+}
+
+.city-growth-table tr:hover {
+  background: rgba(208, 32, 48, 0.05);
+}
+
+.city-growth-table .above-average {
+  color: var(--color-primary);
+}
+
+.city-growth-table .below-average {
+  color: var(--color-text-muted);
+}
+
+.city-statewide-note {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-align: right;
+}
+
+/* Additional Info (collapsible) */
+.additional-info {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.additional-info summary {
+  padding: var(--spacing-md) var(--spacing-lg);
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.additional-info summary::before {
+  content: '▶';
+  font-size: 0.7em;
+  transition: transform var(--transition-fast);
+}
+
+.additional-info[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.additional-info summary::-webkit-details-marker {
+  display: none;
+}
+
+.additional-info-content {
+  padding: 0 var(--spacing-lg) var(--spacing-lg);
+}
+
+.info-subsection {
+  margin-bottom: var(--spacing-md);
+}
+
+.info-subsection:last-child {
+  margin-bottom: 0;
+}
+
+.info-subsection h4 {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.subsection-note {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+/* Small tables in additional info */
+.small-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.small-table th,
+.small-table td {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.small-table th {
+  font-weight: 600;
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.small-table .no-data {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-style: italic;
+  padding: var(--spacing-md);
+}
+
+.excess-positive {
+  color: var(--color-primary);
+}
+
+.excess-negative {
+  color: #059669;
+}
+
+/* Statewide chart in sidebar */
+#statewide-chart-container {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+#statewide-chart-container h3 {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+}
+
+#statewide-chart-container .chart-subtitle {
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+#statewide-chart-container #statewide-property-tax-chart {
+  height: 200px;
+}
+
+/* Panel footer adjustments */
+.panel-footer {
+  padding: var(--spacing-md) var(--spacing-lg);
+}
+
+/* ==========================================
+   COUNTY RECAP DOWNLOAD FEATURE
+   ========================================== */
+
+/* Recap Download Button Section */
+.county-recap-section {
+  padding: var(--spacing-md) var(--spacing-lg);
+  text-align: center;
+  border-top: 1px solid var(--color-border);
+}
+
+.btn-recap {
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--color-primary), #a00000);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  box-shadow: 0 2px 8px rgba(180, 0, 0, 0.3);
+}
+
+.btn-recap:hover {
+  background: linear-gradient(135deg, #a00000, var(--color-primary));
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(180, 0, 0, 0.4);
+}
+
+.btn-recap:active {
+  transform: translateY(0);
+}
+
+.recap-hint {
+  margin: var(--spacing-sm) 0 0 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+/* Hidden Recap Template - Print/PDF Styles */
+.recap-template {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  width: 8.5in;
+  background: white;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.recap-page {
+  padding: 0.4in;
+  color: #333;
+}
+
+.recap-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-bottom: 15px;
+  border-bottom: 3px solid #b40000;
+  margin-bottom: 15px;
+}
+
+.recap-logo {
+  height: 60px;
+  width: auto;
+}
+
+.recap-title-block h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #b40000;
+  font-weight: 700;
+}
+
+.recap-subtitle {
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+.recap-date {
+  margin: 2px 0 0 0;
+  font-size: 11px;
+  color: #999;
+}
+
+.recap-section {
+  margin-bottom: 12px;
+  page-break-inside: avoid;
+}
+
+.recap-section h2 {
+  margin: 0 0 6px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #b40000;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 4px;
+}
+
+.recap-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10px;
+}
+
+.recap-table th {
+  background: #f5f5f5;
+  padding: 4px 6px;
+  text-align: left;
+  font-weight: 600;
+  color: #555;
+  border-bottom: 1px solid #ddd;
+}
+
+.recap-table th:nth-child(2),
+.recap-table th:nth-child(3),
+.recap-table th:nth-child(4) {
+  text-align: right;
+  width: 90px;
+}
+
+.recap-table td {
+  padding: 3px 6px;
+  border-bottom: 1px solid #eee;
+}
+
+.recap-table td:nth-child(2),
+.recap-table td:nth-child(3),
+.recap-table td:nth-child(4) {
+  text-align: right;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 9px;
+}
+
+.recap-table tr:nth-child(even) {
+  background: #fafafa;
+}
+
+.recap-table .rank-good {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+.recap-table .rank-bad {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+.recap-footer {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid #ddd;
+  font-size: 9px;
+  color: #888;
+  text-align: center;
+}
+
+.recap-footer p {
+  margin: 2px 0;
+}
+
