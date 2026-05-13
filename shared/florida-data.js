@@ -3,11 +3,12 @@
 // but drops the PDF-recap + paired-metric plumbing.
 
 const METRICS = {
-  // ── Property tax ─────────────────────────────────────────────
+  // ── Property Taxes ────────────────────────────────────────────
   perCapitaTotalPropertyTaxLevies: {
     label: "Per Capita Total Property Tax Levies",
     short: "Total property tax",
-    group: "Property tax", format: "currency", year: "2024",
+    statewide: 2397.57,
+    group: "Property Taxes", format: "currency", year: "2024",
     desc: "Includes all taxing jurisdictions in each county (counties, cities, school districts and special districts) and uses total county population.",
     source: "Florida Department of Revenue and Florida TaxWatch, November 2025.",
     higherIsBetter: false,
@@ -15,7 +16,8 @@ const METRICS = {
   perCapitaCountyPropertyTaxLevies: {
     label: "Per Capita County Government Property Tax Levies",
     short: "County property tax",
-    group: "Property tax", format: "currency", year: "2024",
+    statewide: 941.74,
+    group: "Property Taxes", format: "currency", year: "2024",
     desc: "Includes county government operating levies, county government debt service levies, dependent special districts and municipal service taxing units (MSTUs).",
     source: "Florida Department of Revenue and Florida TaxWatch, November 2025.",
     higherIsBetter: false,
@@ -23,7 +25,8 @@ const METRICS = {
   perCapitaMunicipalPropertyTaxLevies: {
     label: "Per Capita Municipal Government Property Tax Levies",
     short: "Municipal property tax",
-    group: "Property tax", format: "currency", year: "2024",
+    statewide: 177.94,
+    group: "Property Taxes", format: "currency", year: "2024",
     desc: "Per capita municipal levies were calculated by dividing all municipal levies in a county by total county population. Levies for Jacksonville's consolidated government are included in the county government table; Duval's levies are for Atlantic Beach, Baldwin, Jacksonville Beach, and Neptune Beach.",
     source: "Florida Department of Revenue and Florida TaxWatch, November 2025.",
     higherIsBetter: false,
@@ -31,7 +34,8 @@ const METRICS = {
   perCapitaSchoolPropertyTaxLevies: {
     label: "Per Capita School District Property Tax Levies",
     short: "School property tax",
-    group: "Property tax", format: "currency", year: "2024",
+    statewide: 933.39,
+    group: "Property Taxes", format: "currency", year: "2024",
     desc: "Includes both school board operating and debt service levies.",
     source: "Florida Department of Revenue and Florida TaxWatch, November 2025.",
     higherIsBetter: false,
@@ -39,7 +43,8 @@ const METRICS = {
   perCapitaSpecialDistrictPropertyTaxLevies: {
     label: "Per Capita Independent Special District Property Tax Levies",
     short: "Special district tax",
-    group: "Property tax", format: "currency", year: "2024",
+    statewide: 92.35,
+    group: "Property Taxes", format: "currency", year: "2024",
     desc: "Includes independent districts only. Dependent districts are included in the county government table. Calculated using total county population.",
     source: "Florida Department of Revenue and Florida TaxWatch, November 2025.",
     higherIsBetter: false,
@@ -47,7 +52,8 @@ const METRICS = {
   avgTotalMillageRate: {
     label: "Average Total Property Tax Millage Rates",
     short: "Avg millage",
-    group: "Property tax", format: "millage", year: "2024",
+    statewide: 16.3624,
+    group: "Property Taxes", format: "millage", year: "2024",
     desc: "Includes all jurisdictions. Calculated using total property tax levies and total taxable value in each county. School district portion calculated using school taxable value, the rest using county taxable value. One mill = $1 per $1,000 of taxable value.",
     source: "Florida Department of Revenue and Florida TaxWatch, November 2025.",
     higherIsBetter: false,
@@ -55,21 +61,23 @@ const METRICS = {
   perCapitaSaveOurHomesImpact: {
     label: "Per Capita Impact of Save Our Homes in Taxes",
     short: "Save Our Homes",
-    group: "Property tax", format: "currency", year: "2024",
+    statewide: 660.00,
+    group: "Property Taxes", format: "currency", year: "2024",
     desc: "Represents the amount of property taxes reduced or shifted to other taxpayers by Save Our Homes. Calculated using current average millage rates applied to Save Our Homes differential (just value minus assessed value) of homestead properties.",
     source: "Florida Department of Revenue and Florida TaxWatch, November 2025.",
   },
   perCapita2008AmendmentImpact: {
     label: "Per Capita Impact of 2008 Property Tax Constitutional Amendment",
     short: "2008 Amendment",
-    group: "Property tax", format: "currency", year: "2025",
+    statewide: 182.92,
+    group: "Property Taxes", format: "currency", year: "2025",
     desc: "Represents the amount of property taxes reduced or shifted to other taxpayers by Amendment 1 — which raised the Homestead Exemption from $25,000 to $50,000, made Save Our Homes benefits portable, granted a $25,000 tangible personal property exemption, and capped nonhomestead assessment increases at 10%.",
     source: "Florida Department of Revenue and Florida TaxWatch, November 2025.",
   },
   statewideGrowthChart: {
     label: "Statewide Growth in Property Tax Levies",
     short: "Statewide growth",
-    group: "Property tax", format: "currency", year: "FY 2000–01 – FY 2024–25",
+    group: "Property Taxes", format: "currency", year: "FY 2000–01 – FY 2024–25",
     desc: "Twenty-five years of total statewide property tax levies, broken out by jurisdiction.",
     source: "Florida TaxWatch, Florida Department of Revenue, November 2025.",
     special: "statewideGrowth",
@@ -77,7 +85,9 @@ const METRICS = {
   propertyTaxGrowth2014_2024: {
     label: "Property Tax Growth vs. Population & Inflation (2014–2024)",
     short: "Growth vs pop & inflation",
-    group: "Property tax", format: "percent", year: "2014–2024",
+    statewide: 108.1,
+    statewideSecondary: 54.9,
+    group: "Property Taxes", format: "percent", year: "2014–2024",
     desc: "Compares each county's total property tax levy growth against its combined population + inflation growth. Counties are ranked by property-tax growth; the paired population & inflation figure is shown alongside for each county.",
     source: "Florida Department of Revenue and the Office of Economic and Demographic Research. Calculations by Florida TaxWatch, November 2025.",
     paired: "popInflationGrowth2014_2024",
@@ -87,7 +97,8 @@ const METRICS = {
   perCapitaExcessTaxGrowth: {
     label: "Per Capita Property Taxes Exceeding Population & Inflation Growth",
     short: "Excess tax growth",
-    group: "Property tax", format: "currency", year: "2014–2024",
+    statewide: 578.33,
+    group: "Property Taxes", format: "currency", year: "2014–2024",
     desc: "Amount by which per-capita property tax growth outpaced combined population and inflation growth. Includes all taxing jurisdictions.",
     source: "Florida Department of Revenue. Calculations by Florida TaxWatch, November 2025.",
     higherIsBetter: false,
@@ -95,7 +106,7 @@ const METRICS = {
   cityGrowth50: {
     label: "Growth in Property Taxes — 50 Largest Florida Cities (2014–2024)",
     short: "50 cities growth",
-    group: "Property tax", format: "percent", year: "2014–2024",
+    group: "Property Taxes", format: "percent", year: "2014–2024",
     desc: "City-level 10-year growth for Florida's 50 largest cities. Selecting a county highlights cities located within it.",
     source: "Florida TaxWatch, Office of Economic and Demographic Research, and Florida Department of Financial Services, November 2025.",
     special: "cityGrowth",
@@ -104,7 +115,8 @@ const METRICS = {
   percentTaxableJustValue: {
     label: "Percent of Total Just Value that is Taxable",
     short: "% taxable",
-    group: "Property tax", format: "percent", year: "2025",
+    statewide: 62.0,
+    group: "Property Taxes", format: "percent", year: "2025",
     desc: "Shows the effect that various exclusions, differentials, exemptions, and credits have on the ad valorem tax base of local governments.",
     source: "Florida Department of Revenue and Florida TaxWatch, November 2025.",
     higherIsBetter: true,
@@ -112,7 +124,8 @@ const METRICS = {
   perCapitaJustValue: {
     label: "Per Capita Just Value",
     short: "Just value",
-    group: "Property tax", format: "currency", year: "2025",
+    statewide: 231579,
+    group: "Property Taxes", format: "currency", year: "2025",
     desc: "Just value is the full market value, the starting point for calculating a property's taxable value.",
     source: "Florida Department of Revenue and Florida TaxWatch, November 2025.",
     higherIsBetter: true,
@@ -120,7 +133,8 @@ const METRICS = {
   perCapitaTaxableValue: {
     label: "Per Capita Taxable Value",
     short: "Taxable value",
-    group: "Property tax", format: "currency", year: "2025",
+    statewide: 149307,
+    group: "Property Taxes", format: "currency", year: "2025",
     desc: "Taxable value is just value of all property in each county, reduced by exclusions, differentials, exemptions, and credits. Uses county taxable value. School taxable value is 10 percent higher statewide.",
     source: "Florida Department of Revenue and Florida TaxWatch, November 2025.",
     higherIsBetter: true,
@@ -128,7 +142,8 @@ const METRICS = {
   totalPropertyTaxLeviesPer1000Income: {
     label: "Total Property Tax Levies Per $1,000 of Personal Income",
     short: "Tax per $1k income",
-    group: "Property tax", format: "currency", year: "2023",
+    statewide: 32.74,
+    group: "Property Taxes", format: "currency", year: "2023",
     desc: "Includes all taxing jurisdictions. Calculated using 2023 levies and 2023 personal income (latest available county-level income data).",
     source: "Florida TaxWatch, Florida Department of Revenue, and the U.S. Bureau of Economic Analysis, November 2025.",
     higherIsBetter: false,
@@ -136,7 +151,7 @@ const METRICS = {
   percentLeviesChart: {
     label: "Percent of Total Levies 2024",
     short: "% of total levies",
-    group: "Property tax", format: "percent", year: "2024",
+    group: "Property Taxes", format: "percent", year: "2024",
     desc: "$ In Billions, Percent. County Levies include $4.3 billion in Dependent Special District and Municipal Service Taxing Unit (MSTU) levies.",
     source: "Florida Department of Revenue and Florida TaxWatch, November 2025.",
     special: "percentLevies",
@@ -144,7 +159,7 @@ const METRICS = {
   percentTaxableValueChart: {
     label: "Percent of Taxable Value by Property Type",
     short: "% of taxable value",
-    group: "Property tax", format: "percent", year: "2025",
+    group: "Property Taxes", format: "percent", year: "2025",
     desc: "Breakdown of statewide taxable value by property type \u2014 homestead and non-homestead residential, agricultural, non-residential, and tangible personal property.",
     source: "Florida Ad Valorem Estimating Conference and Florida TaxWatch, November 2025.",
     special: "percentTaxable",
@@ -168,6 +183,7 @@ const METRICS = {
     format: "currency", year: "FY 2023–24",
     desc: "The majority of local option sales tax revenues are distributed to county governments, but some money goes to municipalities and school boards as well. Collier repealed its tax on December 1, 2023.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Revenue and Florida TaxWatch, November 2025.",
+    statewide: 209.69,
   },
   percentSalesTaxRevenueLevied: {
     label: "Percent of Available Local Option Sales Tax Revenue Being Levied",
@@ -176,6 +192,7 @@ const METRICS = {
     format: "percent", year: "FY 2022–23",
     desc: "Share of the legally-available local option sales tax capacity each county is actually levying.",
     source: "Florida Legislature, Office of Economic and Demographic Research and Florida TaxWatch, November 2025.",
+    statewide: 30.3,
   },
   localOptionMotorFuelTaxRate: {
     label: "Local Option Motor Fuel Tax Rates",
@@ -194,6 +211,7 @@ const METRICS = {
     format: "currency", year: "FY 2023–24",
     desc: "Local option motor fuel tax revenues are distributed to county and municipal governments and are generally used for transportation purposes.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Revenue and Florida TaxWatch, November 2025.",
+    statewide: 47.49,
   },
   percentFuelTaxRevenueLevied: {
     label: "Percent of Available Local Option Motor Fuel Tax Revenue Being Levied",
@@ -202,6 +220,7 @@ const METRICS = {
     format: "percent", year: "As of January 1, 2025",
     desc: "Share of the legally-available local option motor fuel tax capacity each county is actually levying.",
     source: "Florida Legislature, Office of Economic and Demographic Research and Florida TaxWatch, November 2025.",
+    statewide: 84,
   },
   localOptionTouristDevelopmentTaxRate: {
     label: "Local Option Tourist Development Tax Rates",
@@ -219,6 +238,7 @@ const METRICS = {
     format: "currency", year: "FY 2023–24",
     desc: "Includes tourist development, tourist impact, professional sport franchise and convention development taxes. Miami-Dade also has a food and beverage tax that produces another $54 million (~$19.38 per capita).",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Revenue and Florida TaxWatch, November 2025.",
+    statewide: 89.60,
   },
   perCapitaLocalCommunicationsServicesTaxRevenue: {
     label: "Per Capita Local Communications Services Tax Revenue",
@@ -227,6 +247,7 @@ const METRICS = {
     format: "currency", year: "FY 2023–24",
     desc: "Counties and cities may levy the tax on telecommunications and cable services. There are separate rates for each city and unincorporated area; rates range from 0.3% to 7.7%.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Department of Revenue and Florida TaxWatch, November 2025.",
+    statewide: 27.11,
   },
   perCapitaLocalPublicServicesTaxRevenue: {
     label: "Per Capita Local Public Services Tax Revenue",
@@ -235,6 +256,7 @@ const METRICS = {
     format: "currency", year: "FY 2022–23",
     desc: "Municipalities and charter counties may impose a tax on purchases of electricity, gas, and water service. Most jurisdictions levy the maximum rate of 10%.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Revenue and Florida TaxWatch, November 2025.",
+    statewide: 74.28,
   },
   perCapitaBuildingPermitFees: {
     label: "Per Capita County and Municipal Building Permit Fees",
@@ -243,6 +265,7 @@ const METRICS = {
     format: "currency", year: "FY 2022–23",
     desc: "Regulatory fees imposed by cities and counties. Such fees should not exceed the regulated activity's cost and are generally required to be applied solely to that cost. Calhoun has not reported permit fees since 2021 ($14.35 per capita at that time).",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services and Florida TaxWatch, November 2025.",
+    statewide: 50.26,
   },
   perCapitaImpactFees: {
     label: "Per Capita County, Municipal and School Impact Fees",
@@ -251,6 +274,7 @@ const METRICS = {
     format: "currency", year: "FY 2022–23",
     desc: "Charges imposed by local governments against new development to fund capital facilities made necessary by population growth. Includes school district, city and county fees.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services, Florida Department of Education, and Florida TaxWatch, November 2025.",
+    statewide: 112.45,
   },
   perCapitaSpecialAssessments: {
     label: "Per Capita County, Municipal, and Independent Special District Special Assessment Revenue",
@@ -259,6 +283,7 @@ const METRICS = {
     format: "currency", year: "FY 2020–21",
     desc: "Special assessments can fund items such as garbage disposal, sewer improvements, fire protection, street improvements, and downtown redevelopment. Reflects total county and municipal assessments divided by total county population.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services, Florida Department of Revenue, and Florida TaxWatch, November 2025.",
+    statewide: 159.28,
   },
 
   // ── County & Municipal Revenue ───────────────────────────────
@@ -269,6 +294,7 @@ const METRICS = {
     format: "currency", year: "FY 2022–23",
     desc: "Includes all reported county and city government revenues and uses total county population to calculate per capita amounts. Excludes custodial revenue and inter-fund transfers.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services and Florida TaxWatch, November 2025.",
+    statewide: 4750.51,
     higherIsBetter: false,
   },
   perCapitaMunicipalRevenue: {
@@ -278,6 +304,7 @@ const METRICS = {
     format: "currency", year: "FY 2022–23",
     desc: "Includes all reported city government revenues and uses total county population to calculate per capita amounts. Excludes custodial revenue and inter-fund transfers.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services and Florida TaxWatch, November 2025.",
+    statewide: 2135.97,
     higherIsBetter: false,
   },
   perCapitaMunicipalRevenueIncorporated: {
@@ -287,6 +314,7 @@ const METRICS = {
     format: "currency", year: "FY 2022–23",
     desc: "Includes all reported city government revenues and uses incorporated population (people living in municipalities) to calculate per capita amounts. Excludes custodial revenue and inter-fund transfers.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services and Florida TaxWatch, November 2025.",
+    statewide: 4196.67,
     higherIsBetter: false,
   },
   perCapitaCountyRevenue: {
@@ -296,6 +324,7 @@ const METRICS = {
     format: "currency", year: "FY 2022–23",
     desc: "Includes county government revenue only and uses total county population. Excludes custodial revenue and inter-fund transfers. Duval county data is included in the municipal tables and total county and municipal tables.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services and Florida TaxWatch, November 2025.",
+    statewide: 2614.54,
     higherIsBetter: false,
   },
   perCapitaCountyMunicipalTaxRevenue: {
@@ -305,6 +334,7 @@ const METRICS = {
     format: "currency", year: "FY 2022–23",
     desc: "Major tax sources include property taxes, public services tax, communications services tax, and local option sales and fuel taxes. Special assessments and impact fees are included in the next table.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services and Florida TaxWatch, November 2025.",
+    statewide: 1479.94,
     higherIsBetter: false,
   },
   perCapitaCountyMunicipalPermitsFeesAssessments: {
@@ -314,6 +344,7 @@ const METRICS = {
     format: "currency", year: "FY 2022–23",
     desc: "Includes special assessments, impact fees, building and other permits, franchise fees and license fees.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services and Florida TaxWatch, November 2025.",
+    statewide: 308.09,
     higherIsBetter: false,
   },
   perCapitaCountyMunicipalIntergovernmentalRevenue: {
@@ -323,6 +354,7 @@ const METRICS = {
     format: "currency", year: "FY 2022–23",
     desc: "Intergovernmental revenue includes all revenues received from federal, state, and other local government sources in the form of grants, shared revenues, and payments in lieu of taxes.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services and Florida TaxWatch, November 2025.",
+    statewide: 571.55,
     higherIsBetter: false,
   },
   perCapitaCountyMunicipalStateRevenue: {
@@ -332,6 +364,7 @@ const METRICS = {
     format: "currency", year: "FY 2022–23",
     desc: "Includes state grants, state revenue sharing, and payments in lieu of taxes.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services and Florida TaxWatch, November 2025.",
+    statewide: 313.31,
     higherIsBetter: false,
   },
   perCapitaCountyMunicipalChargesForServices: {
@@ -341,6 +374,7 @@ const METRICS = {
     format: "currency", year: "FY 2022–23",
     desc: "Charges for services are direct payments by private individuals or other governments for services provided. This includes such services as government owned utilities or waste collection.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services and Florida TaxWatch, November 2025.",
+    statewide: 1508.53,
     higherIsBetter: false,
   },
   countyRevenueBySource: {
@@ -370,6 +404,7 @@ const METRICS = {
     format: "currency", year: "FY 2022–23",
     desc: "Includes all reported county and city government expenditures and uses total county population to calculate per capita amounts. Excludes custodial revenue and inter-fund transfers.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services and Florida TaxWatch, November 2025.",
+    statewide: 4019,
     higherIsBetter: false,
   },
   perCapitaMunicipalExpenditure: {
@@ -379,6 +414,7 @@ const METRICS = {
     format: "currency", year: "FY 2022–23",
     desc: "Includes all reported city government expenditures and uses total county population to calculate per capita amounts. Excludes custodial revenue and inter-fund transfers.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services and Florida TaxWatch, November 2025.",
+    statewide: 1786.64,
     higherIsBetter: false,
   },
   perCapitaCountyExpenditure: {
@@ -388,6 +424,7 @@ const METRICS = {
     format: "currency", year: "FY 2022–23",
     desc: "Includes county government expenditures only and uses total county population. Excludes custodial revenue and inter-fund transfers. Duval county data is included in the municipal tables and total county and municipal tables.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services and Florida TaxWatch, November 2025.",
+    statewide: 2232.15,
     higherIsBetter: false,
   },
   countyExpenditureGrowth2013_2024: {
@@ -399,6 +436,8 @@ const METRICS = {
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services and Florida TaxWatch, November 2025.",
     paired: "popInflationGrowth2013_2024",
     pairedLabel: "Population & inflation",
+    statewide: 108.1,
+    statewideSecondary: 54.9,
     higherIsBetter: false,
   },
   cityGrowth70Expenditure: {
@@ -418,6 +457,7 @@ const METRICS = {
     format: "currency", year: "FY 2022–23",
     desc: "General government expenditures are those for basic governmental administration, including legislative, executive, financial, legal counsel, information technology (non-court related), and comprehensive planning. Also includes debt service and pension benefits.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services and Florida TaxWatch, November 2025.",
+    statewide: 988.61,
     higherIsBetter: false,
   },
   perCapitaPublicSafetyExpenditure: {
@@ -427,6 +467,7 @@ const METRICS = {
     format: "currency", year: "FY 2022–23",
     desc: "Public safety expenditures include law enforcement, fire control, protective inspections, emergency and disaster relief, ambulance and rescue services, medical examiners, and consumer affairs.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services and Florida TaxWatch, November 2025.",
+    statewide: 1045.05,
     higherIsBetter: false,
   },
   perCapitaPhysicalEnvironmentExpenditure: {
@@ -436,6 +477,7 @@ const METRICS = {
     format: "currency", year: "FY 2022–23",
     desc: "Physical environment expenditures include electric utility, gas and water utility services, garbage/solid waste control, sewer/wastewater services, conservation management, and flood control/storm water management.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services and Florida TaxWatch, November 2025.",
+    statewide: 787.82,
     higherIsBetter: false,
   },
   perCapitaTransportationExpenditure: {
@@ -445,6 +487,7 @@ const METRICS = {
     format: "currency", year: "FY 2022–23",
     desc: "Includes spending on road and street facilities, airports, water transportation systems, and transit and parking facilities. This expenditure category does not include traffic control, law enforcement, and highway safety projects (in public safety).",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services and Florida TaxWatch, November 2025.",
+    statewide: 401.57,
     higherIsBetter: false,
   },
   perCapitaEconomicEnvironmentExpenditure: {
@@ -454,6 +497,7 @@ const METRICS = {
     format: "currency", year: "FY 2022–23",
     desc: "Economic environment includes spending on employment opportunity and development, industry development, veteran's services and housing, and urban development.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services and Florida TaxWatch, November 2025.",
+    statewide: 157.16,
     higherIsBetter: false,
   },
   perCapitaHumanServicesExpenditure: {
@@ -463,6 +507,7 @@ const METRICS = {
     format: "currency", year: "FY 2022–23",
     desc: "Human services include hospitals, health, mental health, public assistance, developmental disabilities, and other human services.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services and Florida TaxWatch, November 2025.",
+    statewide: 252.20,
     higherIsBetter: false,
   },
   perCapitaCultureRecreationExpenditure: {
@@ -472,6 +517,7 @@ const METRICS = {
     format: "currency", year: "FY 2022–23",
     desc: "Cultural and recreational expenditures include libraries, parks and recreation, cultural services, special events, and special recreational facilities.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services and Florida TaxWatch, November 2025.",
+    statewide: 224.56,
     higherIsBetter: false,
   },
   perCapitaCourtRelatedExpenditure: {
@@ -481,6 +527,7 @@ const METRICS = {
     format: "currency", year: "FY 2022–23",
     desc: "Includes general court and circuit court administration, state attorney, public defender and clerks of the court administration, guardian ad litem, hearing officers, dispute resolution, misdemeanor probation, legal aid and other court related expenditures.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Department of Financial Services and Florida TaxWatch, November 2025.",
+    statewide: 45.00,
     higherIsBetter: false,
   },
   countyExpenditureBySource: {
@@ -510,6 +557,8 @@ const METRICS = {
     format: "integer", year: "April 1, 2025",
     desc: "Population for each of Florida's 67 counties as of April 1, 2025.",
     source: "Florida Legislature, Office of Economic and Demographic Research, Florida Population Estimates by County and Municipality — April 1, 2025; and University of Florida, Bureau of Economic and Business Research (2025 Estimates).",
+    statewide: 23379261,
+    floridaLabel: true,
     higherIsBetter: true,
   },
   percentUnincorporated: {
@@ -519,6 +568,8 @@ const METRICS = {
     format: "percent", year: "April 1, 2025",
     desc: "Share of each county's residents who live outside of any incorporated municipality.",
     source: "Florida Estimates of Population: April 1, 2025. Bureau of Economic and Business Research, University of Florida (2025).",
+    statewide: 50.0,
+    floridaLabel: true,
   },
   largestCities70: {
     label: "Population of Florida's 70 Largest Cities",
@@ -536,6 +587,8 @@ const METRICS = {
     format: "integer", year: "2025 (persons / sq. mi.)",
     desc: "Persons per square mile.",
     source: "World Population Review, Population by Florida County (2025). Accessed September 27, 2025.",
+    statewide: 445,
+    floridaLabel: true,
   },
   perCapitaPersonalIncome: {
     label: "Per Capita County Personal Income",
@@ -544,6 +597,8 @@ const METRICS = {
     format: "currency", year: "2023",
     desc: "Per capita personal income — total personal income divided by total population.",
     source: "U.S. Department of Commerce, Bureau of Economic Analysis, Current Release: Personal Income by County and Metropolitan Area, 2023, November 14, 2024.",
+    statewide: 68703,
+    floridaLabel: true,
     higherIsBetter: true,
   },
   unemploymentRate: {
@@ -553,6 +608,8 @@ const METRICS = {
     format: "percent", year: "August 2025",
     desc: "Not seasonally adjusted.",
     source: "Florida Department of Commerce, Local Area Unemployment Statistics by County, September 19, 2025.",
+    statewide: 4.4,
+    floridaLabel: true,
     higherIsBetter: false,
   },
 };
