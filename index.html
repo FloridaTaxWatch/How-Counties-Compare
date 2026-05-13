@@ -16,10 +16,10 @@
     --ink-mid:   #3b3632;
     --ink-soft:  #6b645e;
     --ink-faint: #a9a29c;
-    --paper:     #faf8f4;
-    --paper-2:   #f2ede4;
-    --rule:      #e3ddd1;
-    --rule-soft: #ebe6da;
+    --paper:     #ffffff;
+    --paper-2:   #f7f7f7;
+    --rule:      #e5e5e5;
+    --rule-soft: #f0f0f0;
     --navy:      #1a365d;
     --ok:        #2d6a4f;
     --serif:     "Source Serif 4", Georgia, "Times New Roman", serif;
@@ -90,6 +90,7 @@
   .county-path.selected { stroke: var(--ink); stroke-width: 2; }
   .county-path.compared { stroke: var(--red); stroke-width: 2; }
   .county-path.city-host { stroke: var(--red); stroke-width: 1.6; }
+  .county-label { font-family: var(--sans); font-size: 8.5px; font-weight: 500; fill: var(--ink); pointer-events: none; text-shadow: 0 0 2px var(--paper), 0 0 2px var(--paper); paint-order: stroke; stroke: var(--paper); stroke-width: 2px; stroke-linejoin: round; }
 
   /* Special charts */
   .sc-axis text { font-family: var(--mono); font-size: 10px; fill: var(--ink-soft); }
@@ -164,6 +165,10 @@
   .compare-clear:hover { color: var(--red); }
   .map-clear-btn { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; background: var(--paper-2); border: 1px solid var(--rule); color: var(--ink-soft); cursor: pointer; padding: 5px 14px; border-radius: 2px; transition: all 0.12s ease; }
   .map-clear-btn:hover { color: var(--red); border-color: var(--red); background: #fbe9ea; }
+  .focus-pin-btn { display: block; width: 100%; margin-top: 14px; padding: 11px 14px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 500; background: var(--ink); color: var(--paper); border: 1px solid var(--ink); border-radius: 2px; cursor: pointer; transition: all 0.12s ease; }
+  .focus-pin-btn:hover { background: var(--ink-mid); border-color: var(--ink-mid); }
+  .focus-pin-btn.remove { background: var(--paper); color: var(--red); border-color: var(--red); }
+  .focus-pin-btn.remove:hover { background: #fbe9ea; }
 
   .ranked { margin-top: 20px; border-top: 1px solid var(--rule); padding-top: 16px; }
   .ranked.hidden { display: none; }
@@ -189,6 +194,23 @@
     .main { grid-template-columns: 1fr; }
     .map-col { border-right: none; border-bottom: 1px solid var(--rule); }
     #florida-map, #special-chart { height: 440px; }
+  }
+
+  @media (max-width: 700px) {
+    .masthead { padding: 14px 18px 12px; gap: 14px; }
+    .masthead img { height: 30px; }
+    .headline-wrap { padding: 18px 18px 14px; }
+    .map-col { padding: 16px 16px 24px; }
+    .side-col { padding: 16px 16px 24px; }
+    .colophon { padding: 16px 18px; gap: 14px; font-size: 10px; }
+
+    /* Compact tooltip on phone — was overwhelming */
+    .tooltip { max-width: 200px; padding: 7px 10px; font-size: 11px; }
+    .tooltip .tt-name { font-size: 13px; margin-bottom: 2px; }
+    .tooltip .tt-value { font-size: 12px; margin: 2px 0; }
+    .tooltip .tt-paired { font-size: 10.5px; }
+    .tooltip .tt-rank { font-size: 9.5px; margin-top: 3px; }
+    .tooltip .tt-hint { display: none; }
   }
 </style>
 </head>
@@ -290,6 +312,7 @@
           <span>Highest</span>
         </div>
       </div>
+      <button class="focus-pin-btn" id="focus-pin-btn" style="display:none;">+ Add to compare</button>
     </div>
 
     <div class="strip" id="strip">
@@ -318,7 +341,7 @@
         <button class="compare-clear" id="compare-clear" style="display:none;">Clear</button>
       </div>
       <div class="compare-hint">
-        Hold <kbd>⌘</kbd>/<kbd>Ctrl</kbd> and click up to 5 counties to pin them.
+        Tap a county, then tap <strong>Add to compare</strong> — or hold <kbd>⌘</kbd>/<kbd>Ctrl</kbd> and click. Up to 5 counties.
       </div>
       <div id="compare-list">
         <div style="font-family:var(--serif); font-style:italic; font-size:14px; color:var(--ink-soft); padding:10px 0;">No counties pinned yet.</div>
@@ -333,8 +356,7 @@
     Data through November 2025 · Excludes custodial funds &amp; inter-fund transfers.
   </div>
   <div style="text-align:right;">
-    <strong>floridataxwatch.org</strong><br>
-    Created 2025 · v2
+    <strong>floridataxwatch.org</strong>
   </div>
 </footer>
 
@@ -437,6 +459,17 @@
       if (ev.ctrlKey || ev.metaKey || ev.shiftKey) toggleCompare(c); else selectCounty(c);
     });
 
+  // County name labels — sit on top of each county. Small enough that they
+  // don't crowd the desktop view, but become readable when phone users
+  // pinch-zoom into the map (which is the only way to identify counties on
+  // touch since hover doesn't work).
+  mapG.selectAll('text.county-label').data(geo.features, d => d.id).enter().append('text')
+    .attr('class', 'county-label')
+    .attr('transform', d => { const [x, y] = path.centroid(d); return `translate(${x},${y})`; })
+    .attr('text-anchor', 'middle')
+    .attr('dominant-baseline', 'middle')
+    .text(d => { const c = counties.find(c => c.fips === d.id); return c ? c.name : ''; });
+
   // ── Color scale
   function makeScale(key) {
     const s = stats[key]; if (!s) return () => '#eee';
@@ -495,7 +528,7 @@
     const s = stats[key]; const scale = makeScale(key);
     paths.transition().duration(300).attr('fill', f => {
       const c = counties.find(c => c.fips === f.id); const v = c ? c[key] : null;
-      return v == null ? '#e5ded0' : scale(v);
+      return v == null ? '#e8e8e8' : scale(v);
     });
     buildLegend(scale.norm);
     document.getElementById('legend-min').textContent = fmtCompact(s?.min, m.format);
@@ -1246,6 +1279,8 @@
     const card = document.getElementById('focus-card');
     const paired = document.getElementById('focus-paired');
 
+    const pinBtn = document.getElementById('focus-pin-btn');
+
     // Special: hide stats/percentile
     if (m.special && m.special !== 'cityGrowth') {
       card.classList.add('empty');
@@ -1256,6 +1291,7 @@
       paired.style.display = 'none';
       document.getElementById('focus-stats').style.display = 'none';
       document.getElementById('percentile').style.display = 'none';
+      pinBtn.style.display = 'none';
       return;
     }
 
@@ -1268,6 +1304,7 @@
       paired.style.display = 'none';
       document.getElementById('focus-stats').style.display = 'none';
       document.getElementById('percentile').style.display = 'none';
+      pinBtn.style.display = 'none';
     } else {
       card.classList.remove('empty');
       document.getElementById('focus-eyebrow').textContent = m.short.toUpperCase();
@@ -1301,14 +1338,22 @@
       document.getElementById('percentile-fill').style.width = pct + '%';
       document.getElementById('percentile-tick').style.left = pct + '%';
       document.getElementById('percentile-label').textContent = `${pct}th PERCENTILE`;
+
+      const isCompared = compared.some(c => c.fips === selected.fips);
+      pinBtn.style.display = 'block';
+      pinBtn.textContent = isCompared ? '✓ Remove from compare' : '+ Add to compare';
+      pinBtn.classList.toggle('remove', isCompared);
     }
   }
+  document.getElementById('focus-pin-btn').onclick = () => {
+    if (selected) toggleCompare(selected);
+  };
 
   function toggleCompare(c) {
     const i = compared.findIndex(x => x.fips === c.fips);
     if (i >= 0) compared.splice(i, 1); else if (compared.length < 5) compared.push(c);
     paths.classed('compared', f => compared.some(c => c.fips === f.id));
-    renderCompare(); renderRanked(); syncMapClear();
+    renderCompare(); renderRanked(); updateFocus(); syncMapClear();
   }
   document.getElementById('compare-clear').onclick = () => {
     compared = []; paths.classed('compared', false); renderCompare(); renderRanked(); syncMapClear();
