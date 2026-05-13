@@ -59,7 +59,7 @@
   .group-tab.active { color: var(--red); border-bottom-color: var(--red); font-weight: 600; }
 
   .metric-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
-  .metric-chip { font-family: var(--sans); font-size: 12.5px; padding: 6px 12px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink-mid); border-radius: 999px; cursor: pointer; transition: all 0.12s ease; white-space: nowrap; font-weight: 500; }
+  .metric-chip { font-family: var(--sans); font-size: 12.5px; padding: 6px 12px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink-mid); border-radius: 999px; cursor: pointer; transition: all 0.12s ease; font-weight: 500; line-height: 1.35; }
   .metric-chip:hover { border-color: var(--ink-soft); color: var(--ink); }
   .metric-chip.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 
@@ -103,7 +103,7 @@
   .sc-pie-pct { font-family: var(--serif); font-size: 15px; font-weight: 600; fill: var(--ink); }
   .sc-pie-slice { stroke: var(--paper); stroke-width: 2; }
 
-  .legend { display: flex; align-items: center; gap: 14px; padding: 10px 0 0; border-top: 1px solid var(--rule-soft); margin-top: 8px; }
+  .legend { display: none; align-items: center; gap: 14px; padding: 10px 0 0; border-top: 1px solid var(--rule-soft); margin-top: 8px; }
   .legend-title { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); }
   .legend-bar { display: flex; flex: 1; max-width: 360px; height: 10px; border: 1px solid var(--rule); }
   .legend-bar > div { flex: 1; height: 100%; }
@@ -141,7 +141,7 @@
 
   .strip { border: 1px solid var(--rule); padding: 14px 16px; margin-bottom: 16px; background: var(--paper); }
   .strip-title { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 10px; font-weight: 500; }
-  .strip-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .strip-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
   .strip-cell { border-left: 1px solid var(--rule); padding-left: 10px; }
   .strip-cell:first-child { border-left: none; padding-left: 0; }
   .strip-cell .sc-label { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 2px; }
@@ -328,6 +328,10 @@
           <div class="sc-value" id="strip-med">—</div>
         </div>
         <div class="strip-cell">
+          <div class="sc-label">Avg</div>
+          <div class="sc-value" id="strip-avg">—</div>
+        </div>
+        <div class="strip-cell">
           <div class="sc-label">High</div>
           <div class="sc-value" id="strip-max">—</div>
           <div class="sc-county" id="strip-max-c">—</div>
@@ -352,8 +356,8 @@
 
 <footer class="colophon">
   <div>
-    <strong>Florida TaxWatch</strong> · Independent, non-partisan taxpayer research institute<br>
-    Data through November 2025 · Excludes custodial funds &amp; inter-fund transfers.
+    <strong>Florida TaxWatch</strong> · Independent, non-partisan, non-profit taxpayer research institute and government watchdog<br>
+    Data through November 2025 · Excludes custodial funds &amp; inter-fund transfers. <em>How Counties Compare</em> compares the magnitude and makeup of Florida's local governments' fiscal operations. It does not attempt to compare or evaluate levels of service.
   </div>
   <div style="text-align:right;">
     <strong>floridataxwatch.org</strong>
@@ -407,7 +411,7 @@
     if (m.hidden) continue;
     (groups[m.group] = groups[m.group] || []).push({ key, ...m });
   }
-  const groupOrder = ["Property tax", "Other taxes & fees", "County & Municipal Revenue", "County & Municipal Expenditure", "Population & Miscellaneous"];
+  const groupOrder = ["Property Taxes", "Other taxes & fees", "County & Municipal Revenue", "County & Municipal Expenditure", "Population & Miscellaneous"];
 
   let currentGroup = "Property tax";
   let currentMetric = "perCapitaTotalPropertyTaxLevies";
@@ -434,7 +438,7 @@
     for (const m of groups[currentGroup]) {
       const c = document.createElement('button');
       c.className = 'metric-chip' + (m.key === currentMetric ? ' active' : '');
-      c.textContent = m.short;
+      c.textContent = m.label;
       c.onclick = () => { currentMetric = m.key; renderChips(); applyMetric(); };
       rowEl.appendChild(c);
     }
@@ -540,6 +544,7 @@
     document.getElementById('strip-min').textContent = fmt(s?.min, m.format);
     document.getElementById('strip-min-c').textContent = minC?.name || '';
     document.getElementById('strip-med').textContent = fmt(s?.median, m.format);
+    document.getElementById('strip-avg').textContent = fmt(s?.mean, m.format);
     document.getElementById('strip-max').textContent = fmt(s?.max, m.format);
     document.getElementById('strip-max-c').textContent = maxC?.name || '';
 
@@ -1298,10 +1303,25 @@
     if (!selected) {
       card.classList.add('empty');
       document.getElementById('focus-eyebrow').textContent = 'STATEWIDE';
-      document.getElementById('focus-name').innerHTML = 'Florida <span class="county-word">average</span>';
-      document.getElementById('focus-value').textContent = fmt(s?.mean, m.format);
-      document.getElementById('focus-value-label').textContent = `AVG OF ${s?.count ?? 67} COUNTIES`;
-      paired.style.display = 'none';
+      if (m.statewide != null) {
+        document.getElementById('focus-name').innerHTML = m.floridaLabel
+          ? 'Florida'
+          : 'Florida <span class="county-word">statewide</span>';
+        document.getElementById('focus-value').textContent = fmt(m.statewide, m.format);
+        document.getElementById('focus-value-label').textContent = m.floridaLabel ? 'FLORIDA' : 'FLORIDA STATEWIDE';
+        if (m.statewideSecondary != null) {
+          paired.style.display = '';
+          document.getElementById('fp-label').textContent = (m.pairedLabel || 'Paired') + (m.floridaLabel ? ' — FLORIDA' : ' — STATEWIDE');
+          document.getElementById('fp-value').textContent = fmt(m.statewideSecondary, m.format);
+        } else {
+          paired.style.display = 'none';
+        }
+      } else {
+        document.getElementById('focus-name').innerHTML = 'Florida <span class="county-word">average</span>';
+        document.getElementById('focus-value').textContent = fmt(s?.mean, m.format);
+        document.getElementById('focus-value-label').textContent = `AVG OF ${s?.count ?? 67} COUNTIES`;
+        paired.style.display = 'none';
+      }
       document.getElementById('focus-stats').style.display = 'none';
       document.getElementById('percentile').style.display = 'none';
       pinBtn.style.display = 'none';
