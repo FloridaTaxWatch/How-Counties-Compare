@@ -90,7 +90,12 @@
   .county-path.selected { stroke: var(--ink); stroke-width: 2; }
   .county-path.compared { stroke: var(--red); stroke-width: 2; }
   .county-path.city-host { stroke: var(--red); stroke-width: 1.6; }
-  .county-label { font-family: var(--sans); font-size: 8.5px; font-weight: 500; fill: var(--ink); pointer-events: none; text-shadow: 0 0 2px var(--paper), 0 0 2px var(--paper); paint-order: stroke; stroke: var(--paper); stroke-width: 2px; stroke-linejoin: round; }
+  .county-label { font-family: var(--sans); font-size: 8.5px; font-weight: 500; fill: var(--ink); pointer-events: none; text-shadow: 0 0 2px var(--paper), 0 0 2px var(--paper); paint-order: stroke; stroke: var(--paper); stroke-width: 2px; stroke-linejoin: round; transition: opacity 0.15s ease; }
+  /* Names too wide for their county are hidden so they don't spill onto neighbors. */
+  .county-label.crowded { opacity: 0; }
+  /* …but reappear on hover, and all of them appear when the reader pinch-zooms in. */
+  .county-label.crowded.reveal { opacity: 1; }
+  .labels-zoomed .county-label.crowded { opacity: 1; }
 
   /* Special charts */
   .sc-axis text { font-family: var(--mono); font-size: 10px; fill: var(--ink-soft); }
@@ -413,7 +418,7 @@
   }
   const groupOrder = ["Property Taxes", "Other taxes & fees", "County & Municipal Revenue", "County & Municipal Expenditure", "Population & Miscellaneous"];
 
-  let currentGroup = "Property tax";
+  let currentGroup = "Property Taxes";
   let currentMetric = "perCapitaTotalPropertyTaxLevies";
   let selected = null;
   let compared = [];
@@ -454,25 +459,42 @@
   const mapG = svg.append('g').attr('transform', 'translate(15, 15)');
   const paths = mapG.selectAll('path').data(geo.features, d => d.id).enter().append('path')
     .attr('class', 'county-path').attr('d', path)
-    .on('mouseenter', (ev, f) => showTT(ev, f))
+    .on('mouseenter', (ev, f) => { showTT(ev, f); const el = labelByFips.get(f.id); if (el) el.classList.add('reveal'); })
     .on('mousemove', positionTT)
-    .on('mouseleave', () => TT.classList.remove('visible'))
+    .on('mouseleave', (ev, f) => { TT.classList.remove('visible'); const el = labelByFips.get(f.id); if (el) el.classList.remove('reveal'); })
     .on('click', (ev, f) => {
       const c = counties.find(c => c.fips === f.id);
       if (!c) return;
       if (ev.ctrlKey || ev.metaKey || ev.shiftKey) toggleCompare(c); else selectCounty(c);
     });
 
-  // County name labels — sit on top of each county. Small enough that they
-  // don't crowd the desktop view, but become readable when phone users
-  // pinch-zoom into the map (which is the only way to identify counties on
-  // touch since hover doesn't work).
-  mapG.selectAll('text.county-label').data(geo.features, d => d.id).enter().append('text')
+  // County name labels — sit on top of each county. A name is hidden when it's
+  // wider than the county that holds it (it would otherwise spill onto
+  // neighbors and clutter the map). Hidden names reappear on hover, and all of
+  // them appear when the reader pinch-zooms in — where there is room to read
+  // them. On touch, pinch-zoom + this reveal is the main way to identify the
+  // small counties, since hover doesn't work there.
+  const labelByFips = new Map();
+  const labels = mapG.selectAll('text.county-label').data(geo.features, d => d.id).enter().append('text')
     .attr('class', 'county-label')
     .attr('transform', d => { const [x, y] = path.centroid(d); return `translate(${x},${y})`; })
     .attr('text-anchor', 'middle')
     .attr('dominant-baseline', 'middle')
     .text(d => { const c = counties.find(c => c.fips === d.id); return c ? c.name : ''; });
+  // Flag names wider than ~92% of their county's width as "crowded" (hidden).
+  labels.each(function (d) {
+    labelByFips.set(d.id, this);
+    const b = path.bounds(d);                 // [[x0,y0],[x1,y1]] in map units
+    const countyW = b[1][0] - b[0][0];
+    if (this.getBBox().width > countyW * 0.92) this.classList.add('crowded');
+  });
+  // Reveal every hidden name once the reader pinch-zooms in past ~1.4×.
+  const vv = window.visualViewport;
+  if (vv) {
+    const syncZoomLabels = () => mapG.classed('labels-zoomed', vv.scale > 1.4);
+    vv.addEventListener('resize', syncZoomLabels);
+    vv.addEventListener('scroll', syncZoomLabels);
+  }
 
   // ── Color scale
   function makeScale(key) {
