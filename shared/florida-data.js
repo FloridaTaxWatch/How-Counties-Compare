@@ -648,21 +648,33 @@ function fmtCompact(val, format) {
   return fmt(val, format);
 }
 
-// Load counties.json + the plotly all-US-counties geojson filtered to FL (fips 12*).
+// Load county metrics + Florida county geometry.
+//
+// Both are normally provided as bundled globals (shared/counties-data.js and
+// shared/florida-geo.js) so the page needs no network request and works even
+// when opened straight from disk (file://), where fetch() is blocked. If those
+// globals aren't present we fall back to fetching the JSON over HTTP.
 async function loadFlorida() {
-  const [counties, allUSGeo] = await Promise.all([
-    fetch("./data/counties.json").then((r) => r.json()),
-    fetch("https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json").then((r) => r.json()),
-  ]);
+  let counties, geo;
 
-  const flFeatures = allUSGeo.features.filter((f) => String(f.properties.STATE) === "12" || String(f.id).startsWith("12"));
-  const geo = { type: "FeatureCollection", features: flFeatures };
+  if (Array.isArray(window.FloridaCounties) && window.FloridaGeo) {
+    counties = window.FloridaCounties;
+    geo = window.FloridaGeo;
+  } else {
+    const [c, allUSGeo] = await Promise.all([
+      fetch("./data/counties.json").then((r) => r.json()),
+      fetch("https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json").then((r) => r.json()),
+    ]);
+    counties = c;
+    const flFeatures = allUSGeo.features.filter((f) => String(f.properties.STATE) === "12" || String(f.id).startsWith("12"));
+    geo = { type: "FeatureCollection", features: flFeatures };
+  }
 
   const byFips = new Map(counties.map((c) => [c.fips, c]));
   const byName = new Map(counties.map((c) => [c.name.toLowerCase(), c]));
 
   // Attach geo feature to each county for convenience.
-  flFeatures.forEach((f) => {
+  geo.features.forEach((f) => {
     const c = byFips.get(f.id);
     if (c) c.feature = f;
   });

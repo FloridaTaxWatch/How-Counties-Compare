@@ -59,7 +59,7 @@
   .group-tab.active { color: var(--red); border-bottom-color: var(--red); font-weight: 600; }
 
   .metric-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
-  .metric-chip { font-family: var(--sans); font-size: 12.5px; padding: 6px 12px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink-mid); border-radius: 999px; cursor: pointer; transition: all 0.12s ease; font-weight: 500; line-height: 1.35; }
+  .metric-chip { font-family: var(--sans); font-size: 12.5px; padding: 6px 12px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink-mid); border-radius: 999px; cursor: pointer; transition: all 0.12s ease; font-weight: 500; line-height: 1.35; max-width: 100%; text-align: left; }
   .metric-chip:hover { border-color: var(--ink-soft); color: var(--ink); }
   .metric-chip.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 
@@ -85,7 +85,10 @@
   .map-frame.has-map { min-height: 500px; }
   #florida-map, #special-chart { width: 100%; height: 540px; display: block; }
   #special-chart { display: none; }
-  .county-path { fill: var(--rule-soft); stroke: var(--paper); stroke-width: 0.6; cursor: pointer; transition: opacity 0.15s ease, stroke-width 0.12s ease; }
+  /* Light-gray (not white) borders so the county outlines — and the shape of
+     Florida — stay visible even where the fill is at the pale end of the scale,
+     instead of dissolving into the white page. */
+  .county-path { fill: var(--rule-soft); stroke: #cfcac5; stroke-width: 0.6; cursor: pointer; transition: opacity 0.15s ease, stroke-width 0.12s ease; }
   .county-path:hover { stroke: var(--ink); stroke-width: 1.4; }
   .county-path.selected { stroke: var(--ink); stroke-width: 2; }
   .county-path.compared { stroke: var(--red); stroke-width: 2; }
@@ -196,14 +199,23 @@
   .colophon strong { color: var(--ink); font-weight: 500; }
 
   @media (max-width: 1000px) {
-    .main { grid-template-columns: 1fr; }
+    /* minmax(0,1fr) — without the 0 floor a long metric label can force the
+       column wider than the screen, spilling the whole page into a horizontal
+       scroll on phones. */
+    .main { grid-template-columns: minmax(0, 1fr); }
     .map-col { border-right: none; border-bottom: 1px solid var(--rule); }
     #florida-map, #special-chart { height: 440px; }
   }
 
   @media (max-width: 700px) {
-    .masthead { padding: 14px 18px 12px; gap: 14px; }
+    .masthead { padding: 14px 18px 12px; gap: 14px; flex-wrap: wrap; }
     .masthead img { height: 30px; }
+    .masthead-left { min-width: 0; }
+    .masthead .brand-text { min-width: 0; }
+    /* The "67 Counties · 60+ Metrics" tag is decorative and overflows on
+       narrow phones — drop it so the masthead never clips. */
+    .masthead-right { display: none; }
+    .masthead .edition { font-size: 12.5px; white-space: normal; }
     .headline-wrap { padding: 18px 18px 14px; }
     .map-col { padding: 16px 16px 24px; }
     .side-col { padding: 16px 16px 24px; }
@@ -371,6 +383,8 @@
 
 <div class="tooltip" id="tooltip"></div>
 
+<script src="./shared/counties-data.js"></script>
+<script src="./shared/florida-geo.js"></script>
 <script src="./shared/florida-data.js"></script>
 <script src="./shared/property-tax-data.js"></script>
 <script src="./shared/municipal-expenditure-data.js"></script>
@@ -482,11 +496,16 @@
     .attr('dominant-baseline', 'middle')
     .text(d => { const c = counties.find(c => c.fips === d.id); return c ? c.name : ''; });
   // Flag names wider than ~92% of their county's width as "crowded" (hidden).
+  // getBBox() can throw in some browsers if the SVG isn't laid out yet, so each
+  // measurement is guarded — a failure here must never abort the whole script
+  // (which would otherwise leave the map unrendered).
   labels.each(function (d) {
     labelByFips.set(d.id, this);
-    const b = path.bounds(d);                 // [[x0,y0],[x1,y1]] in map units
-    const countyW = b[1][0] - b[0][0];
-    if (this.getBBox().width > countyW * 0.92) this.classList.add('crowded');
+    try {
+      const b = path.bounds(d);               // [[x0,y0],[x1,y1]] in map units
+      const countyW = b[1][0] - b[0][0];
+      if (this.getBBox().width > countyW * 0.92) this.classList.add('crowded');
+    } catch (e) { /* leave the label visible if it can't be measured */ }
   });
   // Reveal every hidden name once the reader pinch-zooms in past ~1.4×.
   const vv = window.visualViewport;
@@ -499,7 +518,7 @@
   // ── Color scale
   function makeScale(key) {
     const s = stats[key]; if (!s) return () => '#eee';
-    const inter = d3.interpolateRgb('#f6e6e2', '#5c0e16');
+    const inter = d3.interpolateRgb('#f2d6cd', '#5c0e16');
     const scale = d3.scaleSequential(inter).domain([s.min, s.max]).clamp(true);
     scale.norm = inter; return scale;
   }
