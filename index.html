@@ -1518,5 +1518,35 @@
   window.addEventListener('resize', () => renderRanked());
 })();
 </script>
+
+<script>
+// ── Embed auto-height ───────────────────────────────────────────────
+// When this page is shown inside an <iframe>, report our content height to
+// the parent window so the embedding page can size the iframe to fit — no
+// inner scrollbar, no cut-off on mobile (where the panels stack and the page
+// gets much taller). The parent listens for { type: 'ftw-hcc-height' }.
+// Harmless when not embedded (it simply does nothing).
+(function () {
+  if (window.parent === window) return; // not in an iframe
+  let last = 0;
+  function postHeight() {
+    const h = Math.max(
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight
+    );
+    if (h && h !== last) {
+      last = h;
+      window.parent.postMessage({ type: 'ftw-hcc-height', height: h }, '*');
+    }
+  }
+  window.addEventListener('load', postHeight);
+  window.addEventListener('resize', postHeight);
+  // Body height changes whenever the reader switches metric (the tall city
+  // lists vs. the short pie views differ by ~1000px) — observe it directly.
+  if (window.ResizeObserver) new ResizeObserver(postHeight).observe(document.body);
+  // A few delayed posts catch async chart renders and web-font swaps.
+  [100, 400, 1000, 2500].forEach(t => setTimeout(postHeight, t));
+})();
+</script>
 </body>
 </html>
